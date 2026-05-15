@@ -1,0 +1,37 @@
+# Build
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Outputs
+output/
+output_smoke/
+report/
+
+# Visualization
+*.vtu
+*.pvtu
+*.vtk
+*.visit
+*.pvd
+
+# Logs
+*.log
+*.out
+
+# Python
+__pycache__/
+*.pyc
+
+# System
+.DS_Store
+.codex
+*.pdf
+*.ods
+*.txt
+
+*.msh
+!mesh/geometry.msh
