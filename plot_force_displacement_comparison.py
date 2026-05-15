@@ -11,15 +11,6 @@ import matplotlib.pyplot as plt
 
 OFFICE_NS = "urn:oasis:names:tc:opendocument:xmlns:office:1.0"
 TABLE_NS = "urn:oasis:names:tc:opendocument:xmlns:table:1.0"
-SERIES_COLORS = [
-    "#0072B2",
-    "#D55E00",
-    "#009E73",
-    "#CC79A7",
-    "#E69F00",
-    "#56B4E9",
-    "#000000",
-]
 ROOT = Path(__file__).resolve().parent
 
 def _attr(ns, name):
@@ -33,9 +24,13 @@ def _to_float(value):
     return number if math.isfinite(number) else None
 
 def read_ods_columns(path, sheet_name):
-    path = Path(path) if Path(path).is_absolute() else ROOT / path
+    """Read columns from an ODS file using pure python to avoid dependencies."""
+    path = Path(path)
+    if not path.is_absolute():
+        path = ROOT / path
+        
     if not path.exists():
-        print(f"Warning: Validation file {path} not found. Skipping validation data.")
+        print(f"Warning: Validation file {path} not found.")
         return {}
     
     try:
@@ -50,6 +45,7 @@ def read_ods_columns(path, sheet_name):
         if candidate.attrib.get(_attr(TABLE_NS, "name")) == sheet_name:
             table = candidate
             break
+    
     if table is None:
         print(f"Warning: Sheet {sheet_name!r} not found in {path}")
         return {}
@@ -63,9 +59,9 @@ def read_ods_columns(path, sheet_name):
             value = cell.attrib.get(_attr(OFFICE_NS, "value"))
             if value is None:
                 value = "".join(cell.itertext()).strip()
-            values.extend([value] * min(repeated_cols, 20))
+            values.extend([value] * min(repeated_cols, 100))
         if any(values):
-            rows.extend([values] * min(repeated_rows, 20))
+            rows.extend([values] * min(repeated_rows, 100))
 
     if not rows:
         return {}
@@ -82,86 +78,112 @@ def read_ods_columns(path, sheet_name):
     return columns
 
 def read_generated(path):
-    path = Path(path) if Path(path).is_absolute() else ROOT / path
+    """Read simulation output data (supports CSV or space/tab separated)."""
+    path = Path(path)
+    if not path.is_absolute():
+        path = ROOT / path
+        
     if not path.exists():
-        raise FileNotFoundError(path)
+        print(f"Error: Simulation data {path} not found.")
+        return [], []
 
-    text = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    if not text:
-        raise ValueError(f"{path} is empty")
+    content = path.read_text(encoding="utf-8", errors="replace")
+    lines = content.splitlines()
+    if not lines:
+        return [], []
 
-    delimiter = "," if "," in text[0] else None
+    # Detect delimiter
+    header = lines[0].lower()
+    delimiter = "," if "," in header else None
+    
     x, y = [], []
     if delimiter == ",":
-        reader = csv.DictReader(text)
+        reader = csv.DictReader(lines)
         for row in reader:
-            disp = _to_float(row.get("displacement", "") or row.get("Displacement", ""))
-            force = _to_float(row.get("force", "") or row.get("Force", ""))
-            if disp is not None and force is not None:
-                x.append(disp)
-                y.append(force)
+            # Handle various header capitalizations
+            d_val = row.get("displacement") or row.get("Displacement")
+            f_val = row.get("force") or row.get("Force")
+            dv, fv = _to_float(d_val), _to_float(f_val)
+            if dv is not None and fv is not None:
+                x.append(dv)
+                y.append(fv)
     else:
-        for line in text:
+        for line in lines:
             parts = line.split()
-            if len(parts) < 2: continue
-            disp, force = _to_float(parts[0]), _to_float(parts[1])
-            if disp is not None and force is not None:
-                x.append(disp)
-                y.append(force)
+            if len(parts) < 2:
+                continue
+            dv, fv = _to_float(parts[0]), _to_float(parts[1])
+            if dv is not None and fv is not None:
+                x.append(dv)
+                y.append(fv)
+    
     return x, y
 
-def make_plot(series, out, title):
-    plt.figure(figsize=(10, 6))
-    for name, xs, ys, color in series:
-        plt.plot(xs, ys, label=name, color=color, linewidth=2, alpha=0.85)
+def make_plot(series_list, output_path, title):
+    """Generate the Matplotlib plot."""
+    plt.figure(figsize=(10, 7), dpi=150)
     
-    plt.title(title, fontsize=14, fontweight='bold')
-    plt.xlabel("Displacement (mm)", fontsize=12)
-    plt.ylabel("Force (kN)", fontsize=12)
-    plt.legend(loc='best')
-    plt.grid(True, linestyle='--', alpha=0.6)
+    for label, x, y, color, style in series_list:
+        if not x or not y:
+            continue
+        plt.plot(x, y, label=label, color=color, linestyle=style, 
+                 linewidth=2.5, marker='o', markersize=3, alpha=0.8)
+
+    plt.title(title, fontsize=14, fontweight='bold', pad=15)
+    plt.xlabel("Displacement (mm)", fontsize=12, labelpad=10)
+    plt.ylabel("Force (kN)", fontsize=12, labelpad=10)
     
-    # Set axis to start from 0
+    plt.grid(True, which='both', linestyle='--', alpha=0.5)
+    plt.minorticks_on()
+    plt.grid(True, which='minor', linestyle=':', alpha=0.2)
+    
+    # Force axes to start at 0
     plt.xlim(left=0)
     plt.ylim(bottom=0)
     
-    # Add minor grid for better readability
-    plt.minorticks_on()
-    plt.grid(True, which='minor', linestyle=':', alpha=0.3)
-    
+    plt.legend(loc='best', frameon=True, shadow=True)
     plt.tight_layout()
-    out.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(out, dpi=300)
+    
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, bbox_inches='tight')
     plt.close()
-
-def plot_one(validation, generated, output, title):
-    generated_x, generated_y = read_generated(generated)
-    series = []
-    
-    if validation:
-        validation_x = validation.get("Dis(Paper)", [])
-        validation_y = validation.get("Force (paper)", [])
-        if validation_x and validation_y:
-            count = min(len(validation_x), len(validation_y))
-            series.append(("Reference (Paper)", validation_x[:count], validation_y[:count], "#0072B2"))
-    
-    series.append(("Simulation Results", generated_x, generated_y, "#D55E00"))
-    
-    make_plot(series, output, title)
-    print(f"Plot saved to: {output}")
+    print(f"Success: Comparison plot saved to {output_path}")
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--validation", type=Path, default=Path("force_displacement_VALIDATION.ods"))
-    parser.add_argument("--validation-sheet", default="Sheet2")
-    parser.add_argument("--generated", type=Path, default=Path("force_displacement.txt"))
-    parser.add_argument("--output", type=Path, default=Path("force_displacement_comparison.png"))
+    parser.add_argument("--validation", type=str, default="force_displacement_VALIDATION.ods")
+    parser.add_argument("--sheet", default="Sheet2")
+    parser.add_argument("--generated", type=str, default="force_displacement.txt")
+    parser.add_argument("--output", type=str, default="images/force_displacement_comparison_hetero.png")
     args = parser.parse_args()
 
-    validation = read_ods_columns(args.validation, args.validation_sheet)
-    output = args.output if args.output.is_absolute() else ROOT / args.output
-    
-    plot_one(validation, args.generated, output, "Force vs Displacement Comparison")
+    # 1. Read Validation Data
+    val_data = read_ods_columns(args.validation, args.sheet)
+    val_x = val_data.get("Dis(Paper)", [])
+    val_y = val_data.get("Force (paper)", [])
+
+    # 2. Read Simulation Data
+    sim_x, sim_y = read_generated(args.generated)
+
+    # 3. Assemble Plot Series
+    series = []
+    if val_x and val_y:
+        series.append(("Reference (Paper)", val_x, val_y, "#0072B2", "--"))
+    else:
+        print("Warning: No validation data points found to plot.")
+
+    if sim_x and sim_y:
+        series.append(("Simulation Results", sim_x, sim_y, "#D55E00", "-"))
+    else:
+        print("Warning: No simulation data points found to plot.")
+
+    # 4. Create Plot
+    if not series:
+        print("Error: No data available to plot.")
+        return
+
+    make_plot(series, args.output, "Heterogeneous Phase-Field Fracture: Force vs Displacement")
 
 if __name__ == "__main__":
     main()

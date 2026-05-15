@@ -253,10 +253,11 @@ void PhaseField::run()
     {
         file.close();
         const std::string comparison_plot =
-            output_directory + "/force_displacement_comparison_hetero.png";
+            "images/force_displacement_comparison_hetero.png";
         const std::string plot_command =
-            "python3 plot_force_displacement_comparison.py --generated " +
-            shell_quote(force_displacement_file) + " --output " +
+            "python3 /home/me24m086/PFM_final/P4_Hetro/plot_force_displacement_comparison.py --generated " +
+            shell_quote(force_displacement_file) + 
+            " --validation /home/me24m086/PFM_final/P4_Hetro/force_displacement_VALIDATION.ods --output " +
             shell_quote(comparison_plot);
         const int plot_status = std::system(plot_command.c_str());
         if (plot_status != 0)

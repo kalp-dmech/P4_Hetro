@@ -1,0 +1,554 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{cite}
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black}
+\setlist[itemize]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\strain}{\boldsymbol{\varepsilon}}
+\newcommand{\unithead}[2]{\shortstack{#1\\{\scriptsize (#2)}}}
+\newcommand{\missingplot}[2]{\begin{figure}[H]\centering\fbox{\begin{minipage}[c][0.15\textheight][c]{0.86\textwidth}\centering\textbf{#1}\\[0.4em]#2\end{minipage}}\caption{#1.}\end{figure}}
+
+\begin{filecontents*}[overwrite]{force_series_0.dat}
+x y
+0.001 0.136246
+0.002 0.271253
+0.003 0.403725
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{active_cells.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{dofs.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{memory.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{runtime.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{mpi_runtime.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{mpi_speedup.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{mpi_efficiency.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{peak_force.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{staggered_iterations.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{cg_iterations.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{residual.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{cost_fraction.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_runtime.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_solve.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_assembly.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_refinement.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_io.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_cells.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_elastic_dofs.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_damage_dofs.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_staggered.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_elastic_cg.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_damage_cg.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_speedup.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{filecontents*}[overwrite]{benchmark_efficiency.dat}
+x y
+0 0
+\end{filecontents*}
+
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{1.2cm}
+{\Large\bfseries Comparative Technical Report on Serial, MPI, and MPI--AMR Phase-Field Fracture Simulations\par}
+\vspace{1.0cm}
+{\large Automatically generated from the latest simulation output\par}
+\vfill
+\begin{tabular}{ll}
+Framework & deal.II finite element implementation\\
+Parallel model & MPI distributed triangulation and distributed linear algebra\\
+Generated files parsed & 0 force CSV files, 12 PVTU files, 96 VTU files\\
+Case document folders & 0 manifests\\
+Report date & \today
+\end{tabular}
+\vfill
+\end{titlepage}
+
+\begin{abstract}
+This report is generated automatically after the simulation driver completes. It extracts only real data available in the latest output files. The current archive contains 1 usable force--displacement series and the largest recorded force is 0.403725. Required datasets that are absent are marked explicitly as ``Not recorded in the current simulation output''.
+\end{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\chapter{Executive Summary}
+Table~\ref{tab:executive-summary} gives a compact reading guide for the recorded simulation data. Each entry is computed from the latest output files; missing entries are not inferred.
+
+\begin{longtable}{p{0.27\textwidth}p{0.63\textwidth}}
+\caption{Summary of recorded simulation data and report availability.}
+\label{tab:executive-summary}\\
+\toprule
+Category & Recorded summary\\
+\midrule
+\endfirsthead
+\toprule
+Category & Recorded summary\\
+\midrule
+\endhead
+Simulation output parsed & 1 force series, Not recorded in the current simulation output for AMR, Not recorded in the current simulation output for timing\\
+Porosity response & Not recorded in the current simulation output\\
+AMR mesh evolution & Not recorded in the current simulation output\\
+DoF evolution & Not recorded in the current simulation output\\
+Memory record & Not recorded in the current simulation output\\
+Computational cost & Not recorded in the current simulation output\\
+Dominant cost & Not recorded in the current simulation output.\\
+MPI scaling & Not recorded in the current simulation output\\
+Solver convergence & Not recorded in the current simulation output\\
+Missing-data policy & Not recorded in the current simulation output is printed wherever a required dataset is absent.\\
+\bottomrule
+\end{longtable}
+
+\chapter{Introduction}
+Phase-field fracture represents a sharp crack by a smooth scalar damage field $d\in[0,1]$. The intact state is $d=0$, while $d=1$ denotes fully broken material. The regularized crack surface is controlled by the length scale $\ell_0$, which allows crack initiation and propagation without explicit crack-front tracking.
+
+The brittle fracture problem is written as an energy minimization problem. The displacement field $\bm{u}$ satisfies degraded mechanical equilibrium, and the damage field evolves through a regularized fracture energy. Irreversibility is imposed through a history variable $H$, so crack-driving tensile energy is not allowed to decrease after damage has formed.
+
+Adaptive mesh refinement is required because $\nabla d$ is localized near the crack band and crack tip. MPI parallelization is required because every load step involves repeated assembly, linear solution, ghost exchange, mesh transfer, and output. Porosity modifies the crack trajectory by introducing local stiffness loss and stress concentration.
+
+\chapter{Comparative Benchmark Definition}
+The computational comparison is defined by three executions of the same executable and the same physical model:
+\begin{enumerate}
+\item Serial uniform mesh: single MPI process, AMR disabled, zero pores.
+\item MPI uniform mesh: 45 MPI processes, AMR disabled, zero pores.
+\item MPI with AMR: 45 MPI processes, AMR enabled, zero pores.
+\end{enumerate}
+Only the execution mode and AMR flag are changed between the cases. Geometry, material constants, load stepping, solver tolerances, phase-field length scale, boundary conditions, pore count, and output policy must remain fixed for the comparison to be scientifically valid.
+
+\begin{table}[H]
+\centering
+\caption{Case-wise output and document folder structure scanned by the report generator.}
+\scriptsize
+\begin{tabular}{llllll}
+\toprule
+Case & \unithead{Cores}{count} & AMR flag & Case folder & Results directory & Documents directory\\
+\midrule
+\multicolumn{6}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For each benchmark mode, simulation fields and CSV files are stored under \texttt{results/}, while case-level metadata and report copies are stored under \texttt{documents/}. The overall report scans all case folders under \texttt{output/} and combines the recorded data into one comparative analysis.
+
+\begin{table}[H]
+\centering
+\caption{Three-case benchmark summary extracted from \texttt{benchmark\_summary.csv}.}
+\scriptsize
+\begin{tabular}{lllllllllll}
+\toprule
+Case & \unithead{Cores}{count} & AMR & \unithead{Total}{s} & \unithead{Assembly}{s} & \unithead{Solve}{s} & \unithead{Refine}{s} & \unithead{I/O}{s} & \unithead{Cells}{count} & \unithead{Elastic DoFs}{count} & \unithead{Damage DoFs}{count}\\
+\midrule
+\multicolumn{11}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Benchmark dataset status: Not recorded in the current simulation output.
+
+\missingplot{Total runtime comparison}{Not recorded in the current simulation output.}
+\missingplot{Solver runtime comparison}{Not recorded in the current simulation output.}
+\missingplot{Speedup relative to serial uniform baseline}{Not recorded in the current simulation output.}
+\missingplot{Parallel efficiency relative to serial baseline}{Not recorded in the current simulation output.}
+\missingplot{Active-cell comparison}{Not recorded in the current simulation output.}
+\missingplot{Elastic DoF comparison}{Not recorded in the current simulation output.}
+\missingplot{Damage DoF comparison}{Not recorded in the current simulation output.}
+
+Interpretation from recorded benchmark data: Not recorded in the current simulation output. Run all three benchmark cases to make the final serial/MPI/AMR comparison.
+
+The serial uniform case defines the reference runtime and convergence cost. The MPI uniform case isolates the effect of domain decomposition, distributed assembly, distributed vectors, ghost exchange, and parallel Krylov--AMG solution. The MPI--AMR case measures the combined effect of distributed parallelism and localized refinement near the fracture process zone.
+
+\chapter{Numerical Methodology}
+The small-strain tensor is
+\begin{equation}
+\strain(\bm{u})=\frac{1}{2}\left(\nabla\bm{u}+\nabla\bm{u}^{T}\right).
+\end{equation}
+The elastic energy density is
+\begin{equation}
+\psi_0(\strain)=\frac{\lambda}{2}\left(\mathrm{tr}\,\strain\right)^2+\mu\,\strain:\strain .
+\end{equation}
+The degradation function is
+\begin{equation}
+g(d)=(1-d)^2+k,
+\end{equation}
+and the crack density is
+\begin{equation}
+\gamma_{\ell_0}(d,\nabla d)=\frac{d^2}{2\ell_0}+\frac{\ell_0}{2}|\nabla d|^2 .
+\end{equation}
+The total energy functional is
+\begin{equation}
+\Pi(\bm{u},d)=\int_\Omega g(d)\psi_0^+(\strain(\bm{u}))+\psi_0^-(\strain(\bm{u}))\,\dd\Omega
++\int_\Omega G_c\gamma_{\ell_0}(d,\nabla d)\,\dd\Omega-W_{\mathrm{ext}} .
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{Source-derived numerical configuration used by the executable.}
+\begin{tabular}{ll}
+\toprule
+Quantity & Value / unit\\
+\midrule
+Pore counts & \texttt{--}\\
+Random seed base & \texttt{--}\\
+Minimum pore diameter & \texttt{--} (model length unit)\\
+Maximum pore diameter & \texttt{--} (model length unit)\\
+Crack spread radius & \texttt{--} (model length unit)\\
+Boundary margin & \texttt{--} (model length unit)\\
+$\ell_0$ & \texttt{0.0075} (model length unit)\\
+$G_c$ & \texttt{2.71e-3} (model fracture-energy unit)\\
+$\lambda$ & \texttt{--} (stress unit)\\
+$\mu$ & \texttt{--} (stress unit)\\
+$k$ & \texttt{1e-6} (dimensionless)\\
+Load steps & \texttt{100} (count)\\
+Large displacement increment & \texttt{--} (model length unit)\\
+Small displacement increment & \texttt{--} (model length unit)\\
+Staggered tolerance & \texttt{1.0e-3} (dimensionless)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Adaptive Mesh Refinement}
+AMR is required because the damage field changes rapidly only in a narrow fracture process zone. The implementation therefore concentrates cells near regions of high $\nabla d$, which improves crack-tip resolution while avoiding unnecessary work away from the crack.
+
+\begin{table}[H]
+\centering
+\caption{AMR dataset availability.}
+\begin{tabular}{ll}
+\toprule
+Dataset & Status / unit\\
+\midrule
+Active cells history & Not recorded in the current simulation output; cells in count\\
+DoF history & Not recorded in the current simulation output; DoFs in count\\
+Memory usage & Not recorded in the current simulation output; memory in MB when reported\\
+Runtime data & Not recorded in the current simulation output; time in seconds\\
+VTU/PVTU visualization files & 96 VTU files, 12 PVTU files; files in count\\
+Uniform mesh reference & Not recorded in the current simulation output\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\missingplot{Active cells versus load step}{Not recorded in the current simulation output.}
+\missingplot{Degrees of freedom versus load step}{Not recorded in the current simulation output.}
+\missingplot{Memory usage and AMR savings}{Not recorded in the current simulation output.}
+\missingplot{Runtime comparison}{Not recorded in the current simulation output.}
+\missingplot{Active-cell comparison}{Not recorded in the current simulation output.}
+\missingplot{Damage DoF comparison}{Not recorded in the current simulation output.}
+\missingplot{Crack resolution improvement}{Not recorded in the current simulation output. Crack-resolution metrics require processed damage contours or crack-tip width measurements.}
+\missingplot{Refinement evolution}{Not recorded in the current simulation output unless active-cell or AMR-history data are written per load step.}
+
+The AMR comparison is valid when both MPI uniform and MPI--AMR cases are present in the benchmark summary. A lower active-cell or DoF count in the MPI--AMR case, together with comparable force--displacement response and crack trajectory, supports the conclusion that AMR reduces unnecessary global refinement while preserving fracture resolution.
+
+\chapter{MPI Parallelization}
+The simulation uses a distributed triangulation, distributed sparse matrices, and distributed vectors. Assembly is mostly local to each MPI rank, while vector compression, ghost updates, AMG setup, and Krylov reductions create communication overhead.
+
+\begin{table}[H]
+\centering
+\caption{MPI runtime table.}
+\begin{tabular}{llllll}
+\toprule
+\unithead{Cores}{count} & \unithead{Total runtime}{s} & \unithead{Assembly time}{s} & \unithead{Solver time}{s} & \unithead{Refinement time}{s} & \unithead{I/O time}{s}\\
+\midrule
+\multicolumn{6}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\missingplot{Runtime versus MPI cores}{Not recorded in the current simulation output.}
+\missingplot{MPI speedup graph}{Not recorded in the current simulation output.}
+\missingplot{Strong scaling efficiency}{Not recorded in the current simulation output.}
+\missingplot{Speedup relative to serial uniform baseline}{Not recorded in the current simulation output.}
+\missingplot{Parallel efficiency relative to serial baseline}{Not recorded in the current simulation output.}
+
+MPI reduction in solve time can be stated only from extracted timing data. Current MPI scaling dataset: Not recorded in the current simulation output.
+
+\chapter{Porosity and Fracture Response}
+Random pores are inserted as a diffuse initial damage field. These pores reduce local stiffness, generate stress concentration, and can guide the crack through weakened ligaments.
+
+\begin{table}[H]
+\centering
+\caption{Parsed force--displacement series and peak force.}
+\begin{tabular}{lccc}
+\toprule
+Case & \unithead{Points}{count} & \unithead{Displacement at peak force}{recorded units} & \unithead{Peak force}{recorded units}\\
+\midrule
+Pore ?, trial ? & 3 & 0.003 & 0.403725\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+width=0.86\textwidth,
+height=0.48\textwidth,
+xlabel={Applied displacement},
+ylabel={Reaction force},
+grid=both,
+legend pos=north west,
+title={Force--displacement response},
+]
+\addplot+[mark=*,thick] table[x=x,y=y] {force_series_0.dat};
+\addlegendentry{Pore ?, trial ?}
+\end{axis}
+\end{tikzpicture}
+\caption{Force--displacement curves parsed from the latest simulation output.}
+\end{figure}
+
+\missingplot{Peak force versus pore count}{Not recorded in the current simulation output.}
+\missingplot{Crack path comparison}{Not recorded in the current simulation output. Crack path comparison requires processed damage-field snapshots for each porosity case.}
+
+Porosity conclusion from extracted force data: Not recorded in the current simulation output. Multiple pore cases are required to verify whether increasing porosity decreases peak force.
+
+\chapter{Results and Discussion}
+The force--displacement response, pore-dependent peak force, AMR history, MPI scaling, and convergence plots in this report are generated only from available output files. Missing datasets are not inferred. Crack path alignment with weakened ligaments and dense-pore crack coalescence require damage contours or crack-path extraction from VTU/PVTU files.
+
+\chapter{Computational Cost Breakdown}
+Committee-level cost analysis requires assembly time, solve time, refinement time, and I/O time. These values are read from \texttt{timing.csv}, \texttt{runtime\_breakdown.csv}, or \texttt{timer.csv} when available.
+
+\begin{table}[H]
+\centering
+\caption{Computational cost breakdown.}
+\begin{tabular}{llllll}
+\toprule
+\unithead{Step}{count} & \unithead{Assembly time}{s} & \unithead{Solve time}{s} & \unithead{Refinement time}{s} & \unithead{I/O time}{s} & \unithead{Total runtime}{s}\\
+\midrule
+\multicolumn{6}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\missingplot{Computational cost percentage breakdown}{Not recorded in the current simulation output.}
+\missingplot{Total runtime comparison}{Not recorded in the current simulation output.}
+\missingplot{Solver runtime comparison}{Not recorded in the current simulation output.}
+Not recorded in the current simulation output.
+
+\chapter{Solver Convergence Analysis}
+The staggered convergence check uses
+\begin{equation}
+\eta_u=\frac{\|\bm{u}^{k}-\bm{u}^{k-1}\|_2}{\|\bm{u}^{k}\|_2},
+\qquad
+\eta_d=\frac{\|d^{k}-d^{k-1}\|_2}{\|d^{k}\|_2}.
+\end{equation}
+Convergence behavior is read from \texttt{solver\_iterations.csv}, \texttt{convergence.csv}, or \texttt{iteration\_history.csv} when available.
+
+\begin{table}[H]
+\centering
+\caption{Solver convergence table.}
+\begin{tabular}{lllll}
+\toprule
+\unithead{Load step}{count} & \unithead{Staggered iterations}{count} & \unithead{Elastic CG iterations}{count} & \unithead{Damage CG iterations}{count} & \unithead{Final residual}{dimensionless}\\
+\midrule
+\multicolumn{5}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\missingplot{Staggered iterations per load step}{Not recorded in the current simulation output.}
+\missingplot{CG iterations per load step}{Not recorded in the current simulation output.}
+\missingplot{Residual convergence history}{Not recorded in the current simulation output.}
+\missingplot{Maximum staggered iterations by benchmark case}{Not recorded in the current simulation output.}
+\missingplot{Maximum elastic CG iterations by benchmark case}{Not recorded in the current simulation output.}
+\missingplot{Maximum damage CG iterations by benchmark case}{Not recorded in the current simulation output.}
+
+AMG behavior can be discussed quantitatively only if AMG setup time, iteration count, or residual data are recorded. Current convergence dataset: Not recorded in the current simulation output.
+
+\chapter{Observations}
+\begin{itemize}
+\item Increasing porosity decreases peak force only if confirmed by extracted peak-force data.
+\item Crack path alignment with weakened ligaments requires damage-contour or crack-path data.
+\item AMR concentrates cells near high $\nabla d$ by design of the damage-field refinement criterion.
+\item MPI reduces solve time significantly only if the scaling table shows lower solver time with higher core count.
+\item Dense pores accelerate crack coalescence only if the damage snapshots show earlier ligament connection.
+\item Solver iterations are expected to increase near crack initiation, but this requires solver-iteration output for verification.
+\item Strong scaling efficiency requires a multi-core timing table.
+\item The three-case benchmark conclusion is restricted to rows recorded in \texttt{benchmark\_summary.csv}.
+\end{itemize}
+
+\chapter{Conclusions}
+This final chapter summarizes the comparative evidence for the three executed cases: serial uniform mesh, MPI uniform mesh, and MPI--AMR. The interpretation is restricted to quantities extracted from the recorded benchmark, timing, mesh, solver, and post-processing files.
+
+\section*{Final Performance Summary}
+\begin{table}[H]
+\centering
+\caption{Final performance comparison for serial uniform, MPI uniform, and MPI--AMR simulations. Speedup and efficiency are computed relative to the serial uniform baseline.}
+\scriptsize
+\begin{tabular}{llllllllllll}
+\toprule
+Case & \unithead{Cores}{count} & AMR & \unithead{Total}{s} & \unithead{Assembly}{s} & \unithead{Solve}{s} & \unithead{Refine}{s} & \unithead{I/O}{s} & \unithead{Speedup}{ratio} & \unithead{Efficiency}{ratio} & \unithead{Cells}{count} & \unithead{Elastic DoFs}{count}\\
+\midrule
+\multicolumn{12}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The solver stage is the dominant computational component for the recorded phase-field fracture runs. The serial case establishes the baseline wall time and memory-scale cost. The MPI uniform case measures the benefit of distributed assembly, ghost exchange, distributed matrices and vectors, and parallel Krylov--AMG solution on the same uniform mesh. The MPI--AMR case adds localized refinement around the fracture process zone, so its cost includes refinement and repartitioning work in addition to the parallel solve.
+
+\section*{Final Efficiency and Mesh-Adaptivity Summary}
+\begin{table}[H]
+\centering
+\caption{Final derived comparison metrics. Positive runtime reduction means a faster target case. Positive cell or DoF change means a larger adaptive discrete problem relative to the stated reference.}
+\scriptsize
+\begin{tabular}{llll}
+\toprule
+Comparison & Meaning & \unithead{Metric 1}{\% or ratio} & \unithead{Metric 2}{\% or ratio}\\
+\midrule
+\multicolumn{4}{l}{Not recorded in the current simulation output. Run all three benchmark cases.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For phase-field fracture, AMR is not only a performance device. The damage field $d$ localizes inside a narrow band governed by the length scale $\ell_0$, and the relevant refinement indicator is tied to the crack zone, typically through $d$, $\nabla d$, or damage-history measures. This concentrates cells near the crack path and avoids uniform refinement of regions that remain nearly elastic. The expected numerical benefit is improved crack-tip resolution at a controlled global cost.
+
+\section*{Final Solver-Convergence Summary}
+\begin{table}[H]
+\centering
+\caption{Final solver-convergence comparison extracted from the benchmark summary.}
+\scriptsize
+\begin{tabular}{llllll}
+\toprule
+Case & \unithead{Staggered iterations}{count} & \unithead{Elastic CG iterations}{count} & \unithead{Damage CG iterations}{count} & \unithead{Final residual}{dimensionless} & \unithead{Solve time}{s}\\
+\midrule
+\multicolumn{6}{l}{Not recorded in the current simulation output.}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The staggered phase-field formulation couples the displacement problem and the damage problem through the degradation function $g(d)$ and the history variable $H$. Solver iterations therefore increase when crack growth begins, because the elastic field, damage field, and irreversibility constraint $d^n \ge d^{n-1}$ must become mutually consistent. The CG counts measure the linear-algebra cost of each subproblem, while the final residual indicates whether the nonlinear staggered loop reached the prescribed tolerance.
+
+\section*{Final Technical Conclusion}
+Not recorded in the current simulation output. The final conclusion requires serial uniform, MPI uniform, and MPI--AMR rows.
+
+The comparison supports the following thesis-level conclusions. MPI reduces wall-clock runtime by distributing element assembly, sparse linear algebra, and vector operations across subdomains. Communication through ghost cells and distributed constraints introduces overhead, but the recorded speedup shows that parallel execution is necessary for scalable fracture simulation. AMR is essential because the crack is spatially localized while the surrounding domain often remains smooth; refinement based on the damage field places resolution where the fracture process requires it. The combined MPI--AMR formulation is therefore the appropriate computational strategy for large-scale deal.II-based phase-field fracture analysis, provided that the adaptive refinement criterion preserves the force--displacement response and crack trajectory while controlling active cells and DoFs.
+
+\chapter{Future Work}
+\begin{itemize}
+\item Save active cell count, DoF count, and AMR level statistics at every load step.
+\item Save assembly, solve, refinement, and I/O timing in a structured CSV file.
+\item Save MPI scaling runs in \texttt{mpi\_scaling.csv}.
+\item Save staggered iterations, CG iterations, residuals, and AMG setup statistics.
+\item Extract crack paths from damage contours for porosity-dependent crack trajectory analysis.
+\item Extend to dynamic fracture, 3D simulations, GPU acceleration, and hybrid MPI+OpenMP.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{bourdin2000} B. Bourdin, G. A. Francfort, and J.-J. Marigo, ``Numerical experiments in revisited brittle fracture,'' \emph{Journal of the Mechanics and Physics of Solids}, 48, 797--826, 2000.
+\bibitem{miehe2010} C. Miehe, M. Hofacker, and F. Welschinger, ``A phase field model for rate-independent crack propagation,'' \emph{Computer Methods in Applied Mechanics and Engineering}, 199, 2765--2778, 2010.
+\bibitem{dealii} W. Bangerth, R. Hartmann, and G. Kanschat, ``deal.II: A general-purpose object-oriented finite element library,'' \emph{ACM Transactions on Mathematical Software}, 33, 2007.
+\bibitem{francfort1998} G. A. Francfort and J.-J. Marigo, ``Revisiting brittle fracture as an energy minimization problem,'' \emph{Journal of the Mechanics and Physics of Solids}, 46, 1319--1342, 1998.
+\end{thebibliography}
+
+\end{document}

@@ -9,8 +9,10 @@ excecutable_output
 *.a
 
 # Simulation Outputs
-output/
+output/*.vtu
+output/*.pvtu
 force_displacement.txt
+!output/force_displacement.csv
 
 # Python cache
 __pycache__/
