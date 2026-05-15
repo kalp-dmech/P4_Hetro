@@ -69,5 +69,5 @@ The simulation solves the coupled system for displacement $\mathbf{u}$ and damag
 *(Add your simulation snapshots and Force-Displacement plots here!)*
 
 ---
-**Author**: [Your Name/GitHub Profile]  
+**Author**: KALPESH SINGH (https://www.linkedin.com/in/kalpeshiitm/)
 **Research Area**: Computational Fracture Mechanics, Phase-Field Methods.
