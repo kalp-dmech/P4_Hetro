@@ -1,37 +1,23 @@
-# Build
-build/
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-compile_commands.json
+# Build Artifacts
+**/CMakeFiles/
+**/cmake_install.cmake
+**/CMakeCache.txt
+**/Makefile
+excecutable_output
+*.o
+*.so
+*.a
 
-# Outputs
+# Simulation Outputs
 output/
-output_smoke/
-report/
+force_displacement.txt
 
-# Visualization
-*.vtu
-*.pvtu
-*.vtk
-*.visit
-*.pvd
-
-# Logs
-*.log
-*.out
-
-# Python
+# Python cache
 __pycache__/
 *.pyc
 
-# System
+# IDE/System
+.vscode/
+.idea/
 .DS_Store
-.codex
-*.pdf
-*.ods
-*.txt
-
-*.msh
-!mesh/geometry.msh
+*.swp
